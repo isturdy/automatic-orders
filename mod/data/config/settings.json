@@ -1,0 +1,5 @@
+{
+  "plugins":{
+    "AutomaticOrdersCombatPlugin":"com.github.isturdy.automaticorders.AutomaticOrdersCombatPlugin",
+  },
+}

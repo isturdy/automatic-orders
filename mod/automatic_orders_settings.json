@@ -1,0 +1,15 @@
+{
+  # When ships should retreat by default. Valid options are:
+  # - 'ZERO_PPT': when Peak Performance Time expires.
+  # - 'TEN_PERCENT_PPT': with 10% Ppt remaining.
+  # - 'NONE': Never.
+  "default_cr_retreat_threshold": "TEN_PERCENT_PPT",
+
+  # The proportion of hull at which to retreat--should be in [0-1]. (0 disables the behavior.)
+  "default_damage_retreat_threshold": 0.5,
+
+  # The log level to use within Automatic Orders. "INFO" is recommended unless debugging (use "DEBUG") or "INFO" is
+  # spamming logs excessively. (Please report warnings or errors at github.com/isturdy/automatic-orders or the mod's
+  # forum thread).
+  "log_level": "INFO"
+}
