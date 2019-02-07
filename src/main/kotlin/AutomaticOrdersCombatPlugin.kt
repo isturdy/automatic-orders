@@ -22,7 +22,7 @@ private enum class RetreatReason {
 private data class SetKey(val id: String, val reason: RetreatReason)
 
 class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
-    private lateinit var engine: CombatEngineAPI
+    private var engine: CombatEngineAPI? = null
     private lateinit var fleetManager: CombatFleetManagerAPI
     private lateinit var taskManager: CombatTaskManagerAPI
 
@@ -35,15 +35,17 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
         val LOGGER = Global.getLogger(AutomaticOrdersCombatPlugin::class.java)
     }
 
-    override fun init(engine: CombatEngineAPI) {
+    override fun init(engine: CombatEngineAPI?) {
+        if (engine == null) return
         this.engine = engine
         this.fleetManager = engine.getFleetManager(FleetSide.PLAYER)
         this.taskManager = fleetManager.getTaskManager(false)
     }
 
     override fun advance(amount: Float, events: List<InputEventAPI>?) {
-        if (Global.getCurrentState() == GameState.TITLE) return
-        if (Global.getCurrentState() == GameState.CAMPAIGN) return
+        if (Global.getCurrentState() != GameState.COMBAT) return
+        val engine = this.engine
+        if (engine == null) return
         if (engine.isSimulation) return
 
         interval.advance(amount)
