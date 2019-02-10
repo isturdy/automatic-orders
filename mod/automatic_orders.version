@@ -9,7 +9,7 @@
     #
     # Bitbucket, GitHub, and other online repositories make excellent hosts.
     #
-    "masterVersionFile":"https://raw.githubusercontent.com/isturdy/automatic-orders/master/automatic_orders.version",
+    "masterVersionFile":"https://raw.githubusercontent.com/isturdy/automatic-orders/master/mod/automatic_orders.version",
 
     # The name that is displayed in-game for your mod
     "modName":"Automatic Orders",
