@@ -6,6 +6,9 @@ import com.fs.starfarer.api.combat.*
 import com.fs.starfarer.api.input.InputEventAPI
 import com.fs.starfarer.api.mission.FleetSide
 import com.fs.starfarer.api.util.IntervalUtil
+import com.github.isturdy.automaticorders.hullmods.EscortLight
+import com.github.isturdy.automaticorders.hullmods.EscortMedium
+import com.github.isturdy.automaticorders.hullmods.EscortHeavy
 import com.github.isturdy.automaticorders.hullmods.OrderSearchAndDestroy
 import com.github.isturdy.automaticorders.hullmods.RetreatNoMissiles
 
@@ -61,22 +64,28 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
             if (member.isAlly) continue
 
             val ship = fleetManager.getShipFor(member)
-            if (ship.shipAI == null) continue
             if (!ship.isAlive) continue
 
             val needsInitialOrders = shipsGivenInitialOrders.add(ship.id)
             for (hullMod in ship.variant.hullMods) {
                 if (needsInitialOrders) {
-                    if (hullMod == OrderSearchAndDestroy.ID) {
-                        orderSearchAndDestroy(ship)
+                    when (hullMod) {
+                        OrderSearchAndDestroy.ID -> if (ship.shipAI != null) (orderSearchAndDestroy(ship))
+                        EscortLight().ID -> orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
+                        EscortMedium().ID -> orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
+                        EscortHeavy().ID -> orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
                     }
                 }
+
+                if (ship.shipAI == null) continue
                 if (hullMod == RetreatNoMissiles.ID) {
                     if (outOfMissiles(ship)) {
                         orderRetreat(ship, RetreatReason.MISSILES, CR_COLOR)
                     }
                 }
             }
+
+            if (ship.shipAI == null) continue
 
             if (settings.DEFAULT_CR_RETREAT_THRESHOLD != CrRetreatBehavior.NONE) {
                 val maxPpt = ship.mutableStats.peakCRDuration.computeEffective(ship.hullSpec.noCRLossTime)
@@ -110,6 +119,20 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
         taskManager.orderSearchAndDestroy(fleetManager.getDeployedFleetMember(ship), false)
     }
 
+    private fun orderEscort(ship: ShipAPI, type: CombatAssignmentType) {
+        val member = fleetManager.getDeployedFleetMember(ship)
+        val typeString = when (type) {
+            CombatAssignmentType.LIGHT_ESCORT -> "light"
+            CombatAssignmentType.MEDIUM_ESCORT -> "medium"
+            CombatAssignmentType.HEAVY_ESCORT -> "heavy"
+            else ->
+                throw Exception("Automatic Orders reached an invalid branch--please report this to the author.")
+        }
+        LOGGER.info("Assigning $ship a $typeString escort.")
+        addMessageForShip(member, "assigned a $typeString escort", ASSIGNMENT_COLOR)
+        taskManager.createAssignment(type, member as AssignmentTargetAPI, false)
+    }
+
     private fun orderRetreat(ship: ShipAPI, reason: RetreatReason, color: Color) {
         if (taskManager.getAssignmentFor(ship)?.type == CombatAssignmentType.RETREAT) return
         if (!existingOrders.add(SetKey(ship.id, reason))) return
@@ -139,7 +162,7 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
         var hasMissiles = false
         for (weapon in ship.allWeapons) {
             if (weapon.type == WeaponAPI.WeaponType.MISSILE) {
-                val outOfAmmo = (weapon.usesAmmo() && weapon.ammoPerSecond == 0.0f || weapon.ammo == 0)
+                val outOfAmmo = (weapon.usesAmmo() && weapon.ammoPerSecond == 0.0f && weapon.ammo == 0)
                 if (!outOfAmmo && !weapon.isPermanentlyDisabled) return false
                 hasMissiles = true
             }
