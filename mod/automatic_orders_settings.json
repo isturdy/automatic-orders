@@ -8,6 +8,9 @@
   # The proportion of hull at which to retreat--should be in [0-1]. (0 disables the behavior.)
   "default_damage_retreat_threshold": 0.5,
 
+  # Whether a Personality Override hullmod overrides the personality of an assigned officer.
+  "hullmod_overrides_officer_personality": false,
+
   # The log level to use within Automatic Orders. "INFO" is recommended unless debugging (use "DEBUG") or "INFO" is
   # spamming logs excessively. (Please report warnings or errors at github.com/isturdy/automatic-orders or the mod's
   # forum thread).
