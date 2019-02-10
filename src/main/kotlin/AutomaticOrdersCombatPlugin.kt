@@ -6,12 +6,14 @@ import com.fs.starfarer.api.combat.*
 import com.fs.starfarer.api.input.InputEventAPI
 import com.fs.starfarer.api.mission.FleetSide
 import com.fs.starfarer.api.util.IntervalUtil
+import com.github.isturdy.automaticorders.hullmods.OrderSearchAndDestroy
 
 import java.awt.Color;
 
 private val INTERVAL = 1.0f
 private val CR_COLOR = Color.YELLOW
 private val DAMAGE_COLOR = Color.ORANGE
+private val ASSIGNMENT_COLOR = Color.GREEN
 private val FRIEND_COLOR = Global.getSettings().getColor("textFriendColor");
 
 private enum class RetreatReason {
@@ -30,6 +32,7 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
     private val interval = IntervalUtil(INTERVAL, INTERVAL)
     private val settings = AutomaticOrders.SETTINGS
     private val existingOrders: MutableSet<SetKey> = mutableSetOf()
+    private val shipsGivenInitialOrders = mutableSetOf<String>()
 
     companion object {
         val LOGGER = Global.getLogger(AutomaticOrdersCombatPlugin::class.java)
@@ -59,6 +62,14 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
             if (ship.shipAI == null) continue
             if (!ship.isAlive) continue
 
+            if (shipsGivenInitialOrders.add(ship.id)) {
+                for (hullMod in ship.variant.hullMods) {
+                    if (hullMod == OrderSearchAndDestroy.ID) {
+                        orderSearchAndDestroy(ship)
+                    }
+                }
+            }
+
             if (settings.DEFAULT_CR_RETREAT_THRESHOLD != CrRetreatBehavior.NONE) {
                 val maxPpt = ship.mutableStats.peakCRDuration.computeEffective(ship.hullSpec.noCRLossTime)
                 val pptRemaining = maxPpt - ship.timeDeployedForCRReduction
@@ -82,6 +93,13 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
                 }
             }
         }
+    }
+
+    private fun orderSearchAndDestroy(ship: ShipAPI) {
+        val member = fleetManager.getDeployedFleetMember(ship)
+        LOGGER.info("Assigning $ship to search and destroy.")
+        addMessageForShip(member, "assigned to search and destroy", ASSIGNMENT_COLOR)
+        taskManager.orderSearchAndDestroy(fleetManager.getDeployedFleetMember(ship), false)
     }
 
     private fun orderRetreat(ship: ShipAPI, reason: RetreatReason, color: Color) {
