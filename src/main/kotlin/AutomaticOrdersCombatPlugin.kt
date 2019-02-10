@@ -7,6 +7,7 @@ import com.fs.starfarer.api.input.InputEventAPI
 import com.fs.starfarer.api.mission.FleetSide
 import com.fs.starfarer.api.util.IntervalUtil
 import com.github.isturdy.automaticorders.hullmods.OrderSearchAndDestroy
+import com.github.isturdy.automaticorders.hullmods.RetreatNoMissiles
 
 import java.awt.Color;
 
@@ -19,6 +20,7 @@ private val FRIEND_COLOR = Global.getSettings().getColor("textFriendColor");
 private enum class RetreatReason {
     CR,
     DAMAGE,
+    MISSILES,
 }
 
 private data class SetKey(val id: String, val reason: RetreatReason)
@@ -62,10 +64,16 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
             if (ship.shipAI == null) continue
             if (!ship.isAlive) continue
 
-            if (shipsGivenInitialOrders.add(ship.id)) {
-                for (hullMod in ship.variant.hullMods) {
+            val needsInitialOrders = shipsGivenInitialOrders.add(ship.id)
+            for (hullMod in ship.variant.hullMods) {
+                if (needsInitialOrders) {
                     if (hullMod == OrderSearchAndDestroy.ID) {
                         orderSearchAndDestroy(ship)
+                    }
+                }
+                if (hullMod == RetreatNoMissiles.ID) {
+                    if (outOfMissiles(ship)) {
+                        orderRetreat(ship, RetreatReason.MISSILES, CR_COLOR)
                     }
                 }
             }
@@ -109,6 +117,7 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
         val reasonString = when (reason) {
             RetreatReason.CR -> "CR/PPT threshold reached"
             RetreatReason.DAMAGE -> "damage threshold reached"
+            RetreatReason.MISSILES -> "all missiles expended"
         }
         val member = fleetManager.getDeployedFleetMember(ship)
 
@@ -120,5 +129,21 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
     private fun addMessageForShip(member: DeployedFleetMemberAPI, message: String, color: Color) {
         val name = "${member.member.shipName} (${member.member.hullSpec.hullName}-class): "
         Global.getCombatEngine().combatUI.addMessage(1, member, FRIEND_COLOR, name, color, message)
+    }
+
+    private fun outOfMissiles(ship: ShipAPI): Boolean {
+        if (ship.system.id == "forgevats" && !ship.system.isOutOfAmmo) {
+            return true
+        }
+
+        var hasMissiles = false
+        for (weapon in ship.allWeapons) {
+            if (weapon.type == WeaponAPI.WeaponType.MISSILE) {
+                val outOfAmmo = (weapon.usesAmmo() && weapon.ammoPerSecond == 0.0f || weapon.ammo == 0)
+                if (!outOfAmmo && !weapon.isPermanentlyDisabled) return false
+                hasMissiles = true
+            }
+        }
+        return hasMissiles
     }
 }
