@@ -8,7 +8,7 @@ import com.fs.starfarer.api.combat.ShipAIConfig
 import com.fs.starfarer.api.combat.ShipAIPlugin
 import com.fs.starfarer.api.combat.ShipAPI
 import com.fs.starfarer.api.fleet.FleetMemberAPI
-import com.github.isturdy.automaticorders.hullmods.PERSONALITY_PREFIX
+import com.github.isturdy.automaticorders.hullmods.BasePersonalityOverride
 import org.json.JSONObject
 import org.apache.log4j.Level
 
@@ -32,8 +32,8 @@ class AutomaticOrders : BaseModPlugin() {
         }
 
         for (hullMod in ship.variant.hullMods) {
-            if (!hullMod.startsWith(PERSONALITY_PREFIX)) continue
-            val personality = hullMod.removePrefix(PERSONALITY_PREFIX)
+            if (!hullMod.startsWith(BasePersonalityOverride.PREFIX)) continue
+            val personality = hullMod.removePrefix(BasePersonalityOverride.PREFIX)
             val config = ShipAIConfig()
             config.personalityOverride = personality
 

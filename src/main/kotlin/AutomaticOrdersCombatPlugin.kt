@@ -71,9 +71,9 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
                 if (needsInitialOrders) {
                     when (hullMod) {
                         OrderSearchAndDestroy.ID -> if (ship.shipAI != null) (orderSearchAndDestroy(ship))
-                        EscortLight().ID -> orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
-                        EscortMedium().ID -> orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
-                        EscortHeavy().ID -> orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
+                        EscortLight().id -> orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
+                        EscortMedium().id -> orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
+                        EscortHeavy().id -> orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
                     }
                 }
 
