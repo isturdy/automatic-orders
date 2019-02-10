@@ -45,16 +45,15 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
     override fun advance(amount: Float, events: List<InputEventAPI>?) {
         if (Global.getCurrentState() != GameState.COMBAT) return
         val engine = this.engine
-        if (engine == null) return
+        engine ?: return
         if (engine.isSimulation) return
 
         interval.advance(amount)
         if (!interval.intervalElapsed()) return
 
         for (member in fleetManager.deployedCopy) {
-            if (member.isFighterWing()) continue
-            if (member.isFlagship()) continue
-            if (member.isAlly()) continue
+            if (member.isFighterWing) continue
+            if (member.isAlly) continue
 
             val ship = fleetManager.getShipFor(member)
             if (ship.shipAI == null) continue
@@ -87,8 +86,7 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
 
     private fun orderRetreat(ship: ShipAPI, reason: RetreatReason, color: Color) {
         if (taskManager.getAssignmentFor(ship)?.type == CombatAssignmentType.RETREAT) return
-        val key = SetKey(ship.id, reason)
-        if (existingOrders.contains(key)) return
+        if (!existingOrders.add(SetKey(ship.id, reason))) return
 
         val reasonString = when (reason) {
             RetreatReason.CR -> "CR/PPT threshold reached"
@@ -99,7 +97,6 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
         LOGGER.info("Ordering $ship to retreat: $reasonString")
         addMessageForShip(member, "retreating - $reasonString", color)
         taskManager.orderRetreat(member, false, false)
-        existingOrders.add(key)
     }
 
     private fun addMessageForShip(member: DeployedFleetMemberAPI, message: String, color: Color) {
