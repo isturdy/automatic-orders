@@ -38,6 +38,7 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
     private val settings = AutomaticOrders.SETTINGS
     private val existingOrders: MutableSet<SetKey> = mutableSetOf()
     private val shipsGivenInitialOrders = mutableSetOf<String>()
+    private val shipsGivenInitialAiOrders = mutableSetOf<String>()
 
     companion object {
         val LOGGER = Global.getLogger(AutomaticOrdersCombatPlugin::class.java)
@@ -67,14 +68,17 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
             if (!ship.isAlive) continue
 
             val needsInitialOrders = shipsGivenInitialOrders.add(ship.id)
+            val needsInitialAiOrders = ship.shipAI == null && shipsGivenInitialAiOrders.add(ship.id)
             for (hullMod in ship.variant.hullMods) {
                 if (needsInitialOrders) {
                     when (hullMod) {
-                        OrderSearchAndDestroy.ID -> if (ship.shipAI != null) (orderSearchAndDestroy(ship))
                         EscortLight().id -> orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
                         EscortMedium().id -> orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
                         EscortHeavy().id -> orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
                     }
+                }
+                if (needsInitialAiOrders && hullMod == OrderSearchAndDestroy.ID) {
+                    orderSearchAndDestroy(ship)
                 }
 
                 if (ship.shipAI == null) continue
