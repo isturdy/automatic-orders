@@ -3,8 +3,8 @@
     "name": "Automatic Orders",
     "author": "Blothorn",
     "utility": "true",
-    "version": "0.1.1",
-    "description": "Automatically issues retreat orders to damaged or low-PPT ships (as configured in its settings file)",
+    "version": "0.2.0",
+    "description": "Automates some fleet orders. Configure with the Automatic Orders hullmod group and automatic_orders_settings.json in the mod folder.",
     "gameVersion": "0.9a",
     "jars":["automaticorders.jar"],
     "modPlugin":"com.github.isturdy.automaticorders.AutomaticOrders"
