@@ -6,11 +6,7 @@ import com.fs.starfarer.api.combat.*
 import com.fs.starfarer.api.input.InputEventAPI
 import com.fs.starfarer.api.mission.FleetSide
 import com.fs.starfarer.api.util.IntervalUtil
-import com.github.isturdy.automaticorders.hullmods.EscortLight
-import com.github.isturdy.automaticorders.hullmods.EscortMedium
-import com.github.isturdy.automaticorders.hullmods.EscortHeavy
-import com.github.isturdy.automaticorders.hullmods.OrderSearchAndDestroy
-import com.github.isturdy.automaticorders.hullmods.RetreatNoMissiles
+import com.github.isturdy.automaticorders.hullmods.*
 
 import java.awt.Color;
 
@@ -69,6 +65,8 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
 
             val needsInitialOrders = shipsGivenInitialOrders.add(ship.id)
             val needsInitialAiOrders = ship.shipAI == null && shipsGivenInitialAiOrders.add(ship.id)
+            var directRetreat = false
+            var retreatNoMissiles = false
             for (hullMod in ship.variant.hullMods) {
                 if (needsInitialOrders) {
                     when (hullMod) {
@@ -82,14 +80,21 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
                 }
 
                 if (ship.shipAI == null) continue
-                if (hullMod == RetreatNoMissiles.ID) {
-                    if (outOfMissiles(ship)) {
-                        orderRetreat(ship, RetreatReason.MISSILES, CR_COLOR)
+                when(hullMod) {
+                    RetreatNoMissiles.ID -> {
+                        retreatNoMissiles = true
+                    }
+                    DirectRetreat.ID -> {
+                        directRetreat = true
                     }
                 }
             }
 
             if (ship.shipAI == null) continue
+
+            if (retreatNoMissiles && outOfMissiles(ship)) {
+                orderRetreat(ship, RetreatReason.MISSILES, CR_COLOR, directRetreat)
+            }
 
             if (settings.DEFAULT_CR_RETREAT_THRESHOLD != CrRetreatBehavior.NONE) {
                 val maxPpt = ship.mutableStats.peakCRDuration.computeEffective(ship.hullSpec.noCRLossTime)
@@ -102,7 +107,7 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
                 }
                 LOGGER.debug("Ship: $ship, PPT remaining: $pptRemaining, PPT threshold: $pptThreshold")
                 if (pptRemaining < pptThreshold) {
-                    orderRetreat(ship, RetreatReason.CR, CR_COLOR)
+                    orderRetreat(ship, RetreatReason.CR, CR_COLOR, directRetreat)
                 }
             }
 
@@ -110,7 +115,7 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
                 if (ship.hullLevel < settings.DEFAULT_DAMAGE_RETREAT_THRESHOLD &&
                     ship.hullLevel < ship.hullLevelAtDeployment
                 ) {
-                    orderRetreat(ship, RetreatReason.DAMAGE, DAMAGE_COLOR)
+                    orderRetreat(ship, RetreatReason.DAMAGE, DAMAGE_COLOR, directRetreat)
                 }
             }
         }
@@ -137,7 +142,7 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
         taskManager.createAssignment(type, member as AssignmentTargetAPI, false)
     }
 
-    private fun orderRetreat(ship: ShipAPI, reason: RetreatReason, color: Color) {
+    private fun orderRetreat(ship: ShipAPI, reason: RetreatReason, color: Color, direct: Boolean) {
         if (taskManager.getAssignmentFor(ship)?.type == CombatAssignmentType.RETREAT) return
         if (!existingOrders.add(SetKey(ship.id, reason))) return
 
@@ -150,7 +155,7 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
 
         LOGGER.info("Ordering $ship to retreat: $reasonString")
         addMessageForShip(member, "retreating - $reasonString", color)
-        taskManager.orderRetreat(member, false, false)
+        taskManager.orderRetreat(member, false, direct)
     }
 
     private fun addMessageForShip(member: DeployedFleetMemberAPI, message: String, color: Color) {
