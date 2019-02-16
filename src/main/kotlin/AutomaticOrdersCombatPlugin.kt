@@ -59,6 +59,8 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
         for (member in fleetManager.deployedCopy) {
             if (member.isFighterWing) continue
             if (member.isAlly) continue
+            // Immobile deployable
+            if (member.hullId == "TSC_Mantlet") continue
 
             val ship = fleetManager.getShipFor(member)
             if (!ship.isAlive) continue
