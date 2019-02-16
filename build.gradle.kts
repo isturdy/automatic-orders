@@ -21,7 +21,7 @@ plugins {
     java
 }
 
-version = "0.2.1"
+version = "0.2.2"
 
 repositories {
     maven(url = uri("$projectDir/libs"))
