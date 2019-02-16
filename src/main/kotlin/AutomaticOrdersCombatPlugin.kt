@@ -65,36 +65,22 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
             val ship = fleetManager.getShipFor(member)
             if (!ship.isAlive) continue
 
-            val needsInitialOrders = shipsGivenInitialOrders.add(ship.id)
-            val needsInitialAiOrders = ship.shipAI == null && shipsGivenInitialAiOrders.add(ship.id)
-            var directRetreat = false
-            var retreatNoMissiles = false
-            for (hullMod in ship.variant.hullMods) {
-                if (needsInitialOrders) {
-                    when (hullMod) {
-                        EscortLight().id -> orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
-                        EscortMedium().id -> orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
-                        EscortHeavy().id -> orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
-                    }
-                }
-                if (needsInitialAiOrders && hullMod == OrderSearchAndDestroy.ID) {
-                    orderSearchAndDestroy(ship)
-                }
+            val hullMods = ship.variant.hullMods
 
-                if (ship.shipAI == null) continue
-                when(hullMod) {
-                    RetreatNoMissiles.ID -> {
-                        retreatNoMissiles = true
-                    }
-                    DirectRetreat.ID -> {
-                        directRetreat = true
-                    }
-                }
+            if (shipsGivenInitialOrders.add(ship.id)) {
+                if (EscortLight().id in hullMods) orderEscort(ship, CombatAssignmentType.LIGHT_ESCORT)
+                if (EscortMedium().id in hullMods) orderEscort(ship, CombatAssignmentType.MEDIUM_ESCORT)
+                if (EscortHeavy().id in hullMods) orderEscort(ship, CombatAssignmentType.HEAVY_ESCORT)
             }
 
             if (ship.shipAI == null) continue
 
-            if (retreatNoMissiles && outOfMissiles(ship)) {
+            if (shipsGivenInitialAiOrders.add(ship.id)) {
+                if (OrderSearchAndDestroy.ID in hullMods) orderSearchAndDestroy(ship)
+            }
+
+            val directRetreat = DirectRetreat.ID in hullMods
+            if (RetreatNoMissiles.ID in hullMods && outOfMissiles(ship)) {
                 orderRetreat(ship, RetreatReason.MISSILES, CR_COLOR, directRetreat)
             }
 
