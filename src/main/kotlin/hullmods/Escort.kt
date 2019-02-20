@@ -4,7 +4,7 @@ import com.fs.starfarer.api.combat.BaseHullMod
 import com.fs.starfarer.api.combat.ShipAPI
 
 abstract class BaseEscort(level: String) : BaseHullMod() {
-    val id = PREFIX + level;
+    val id = PREFIX + level
 
     companion object {
         const val PREFIX = "automatic_orders_escort_"
@@ -12,9 +12,9 @@ abstract class BaseEscort(level: String) : BaseHullMod() {
 
     override fun isApplicableToShip(ship: ShipAPI): Boolean {
         for (hullMod in ship.variant.hullMods) {
-            if (hullMod.startsWith(PREFIX) && hullMod != id) return false;
+            if (hullMod.startsWith(PREFIX) && hullMod != id) return false
         }
-        return true;
+        return true
     }
 
     override fun getUnapplicableReason(ship: ShipAPI?): String {

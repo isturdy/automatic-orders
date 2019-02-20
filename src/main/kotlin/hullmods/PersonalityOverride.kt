@@ -5,7 +5,7 @@ import com.fs.starfarer.api.combat.ShipAPI
 
 
 abstract class BasePersonalityOverride(personality: String) : BaseHullMod() {
-    private val id = BasePersonalityOverride.PREFIX + personality;
+    private val id = BasePersonalityOverride.PREFIX + personality
 
     companion object {
         const val PREFIX = "automatic_orders_personality_"
@@ -13,9 +13,9 @@ abstract class BasePersonalityOverride(personality: String) : BaseHullMod() {
 
     override fun isApplicableToShip(ship: ShipAPI): Boolean {
         for (hullMod in ship.variant.hullMods) {
-            if (hullMod.startsWith(BasePersonalityOverride.PREFIX) && !hullMod.equals(id)) return false;
+            if (hullMod.startsWith(BasePersonalityOverride.PREFIX) && hullMod != id) return false
         }
-        return true;
+        return true
     }
 
     override fun getUnapplicableReason(ship: ShipAPI?): String {

@@ -8,13 +8,13 @@ import com.fs.starfarer.api.mission.FleetSide
 import com.fs.starfarer.api.util.IntervalUtil
 import com.github.isturdy.automaticorders.hullmods.*
 
-import java.awt.Color;
+import java.awt.Color
 
-private val INTERVAL = 1.0f
+private const val INTERVAL = 1.0f
 private val CR_COLOR = Color.YELLOW
 private val DAMAGE_COLOR = Color.ORANGE
 private val ASSIGNMENT_COLOR = Color.GREEN
-private val FRIEND_COLOR = Global.getSettings().getColor("textFriendColor");
+private val FRIEND_COLOR = Global.getSettings().getColor("textFriendColor")
 
 private enum class RetreatReason {
     CR,
@@ -37,7 +37,7 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
     private val shipsGivenInitialAiOrders = mutableSetOf<String>()
 
     companion object {
-        val LOGGER = Global.getLogger(AutomaticOrdersCombatPlugin::class.java)
+        val LOGGER = Global.getLogger(AutomaticOrdersCombatPlugin::class.java)!!
     }
 
     override fun init(engine: CombatEngineAPI?) {
