@@ -4,8 +4,10 @@ import org.apache.log4j.Level
 import org.json.JSONObject
 
 enum class CrRetreatBehavior {
-    ZERO_PPT,
     TEN_PERCENT_PPT,
+    ZERO_PPT,
+    MALFUNCTION,
+    CRITICAL_MALFUNCTION,
     NONE,
 }
 

@@ -1,7 +1,9 @@
 {
   # When ships should retreat by default. Valid options are:
-  # - 'ZERO_PPT': when Peak Performance Time expires.
-  # - 'TEN_PERCENT_PPT': with 10% Ppt remaining.
+  # - 'TEN_PERCENT_PPT': with 10% peak performance time remaining.
+  # - 'ZERO_PPT': when peak performance time expires.
+  # - 'MALFUNCTION': when combat readiness reaches the malfunction threshold.
+  # - 'CRITICAL_MALFUNCTION': when combat readiness reaches the critical malfunction threshold.
   # - 'NONE': Never.
   "default_cr_retreat_threshold": "TEN_PERCENT_PPT",
 

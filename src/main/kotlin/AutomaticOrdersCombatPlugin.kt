@@ -3,6 +3,7 @@ package com.github.isturdy.automaticorders
 import com.fs.starfarer.api.GameState
 import com.fs.starfarer.api.Global
 import com.fs.starfarer.api.combat.*
+import com.fs.starfarer.api.impl.combat.CRPluginImpl
 import com.fs.starfarer.api.input.InputEventAPI
 import com.fs.starfarer.api.mission.FleetSide
 import com.fs.starfarer.api.util.IntervalUtil
@@ -84,22 +85,30 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
                 orderRetreat(ship, RetreatReason.MISSILES, CR_COLOR, directRetreat)
             }
 
-            if (settings.DEFAULT_CR_RETREAT_THRESHOLD != CrRetreatBehavior.NONE) {
+            val crRetreatThreshold = when {
+                RetreatMalfunction().id in hullMods -> CrRetreatBehavior.MALFUNCTION
+                RetreatCritical().id in hullMods -> CrRetreatBehavior.CRITICAL_MALFUNCTION
+                NoCrRetreat().id in hullMods || NoRetreat().id in hullMods -> CrRetreatBehavior.NONE
+                else -> settings.DEFAULT_CR_RETREAT_THRESHOLD
+            }
+
+            if (crRetreatThreshold != CrRetreatBehavior.NONE) {
                 val maxPpt = ship.mutableStats.peakCRDuration.computeEffective(ship.hullSpec.noCRLossTime)
                 val pptRemaining = maxPpt - ship.timeDeployedForCRReduction
-                val pptThreshold: Float = when (settings.DEFAULT_CR_RETREAT_THRESHOLD) {
-                    CrRetreatBehavior.ZERO_PPT -> 0.0f
-                    CrRetreatBehavior.TEN_PERCENT_PPT -> maxPpt / 10.0f
+                val shouldRetreat = when (crRetreatThreshold) {
+                    CrRetreatBehavior.TEN_PERCENT_PPT -> pptRemaining < maxPpt * 0.1f
+                    CrRetreatBehavior.ZERO_PPT -> pptRemaining <= 0.0f
+                    CrRetreatBehavior.MALFUNCTION -> ship.currentCR < CRPluginImpl.MALFUNCTION_START
+                    CrRetreatBehavior.CRITICAL_MALFUNCTION -> ship.currentCR < CRPluginImpl.CRITICAL_MALFUNCTION_START
                     CrRetreatBehavior.NONE ->
                         throw Exception("Automatic Orders reached an invalid branch--please report this to the author.")
                 }
-                LOGGER.debug("Ship: $ship, PPT remaining: $pptRemaining, PPT threshold: $pptThreshold")
-                if (pptRemaining < pptThreshold) {
+                if (shouldRetreat) {
                     orderRetreat(ship, RetreatReason.CR, CR_COLOR, directRetreat)
                 }
             }
 
-            if (settings.DEFAULT_DAMAGE_RETREAT_THRESHOLD > 0) {
+            if (settings.DEFAULT_DAMAGE_RETREAT_THRESHOLD > 0 && NoRetreat().id !in hullMods) {
                 if (ship.hullLevel < settings.DEFAULT_DAMAGE_RETREAT_THRESHOLD &&
                     ship.hullLevel < ship.hullLevelAtDeployment
                 ) {
