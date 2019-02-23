@@ -16,13 +16,22 @@ class AutomaticOrders : BaseModPlugin() {
     companion object {
         val LOGGER = Global.getLogger(AutomaticOrders::class.java)!!
         const val SETTINGS_FILE: String = "automatic_orders_settings.json"
+        const val BLACKLIST_FILE = "data/config/automatic_orders/ship_blacklist.csv"
         var SETTINGS: Settings = Settings(JSONObject())
+        var BLACKLIST = mutableSetOf<String>()
     }
 
     override fun onApplicationLoad() {
-        SETTINGS = Settings(Global.getSettings().loadJSON(SETTINGS_FILE))
+        val settings = Global.getSettings()
+        SETTINGS = Settings(settings.loadJSON(SETTINGS_FILE))
         LOGGER.info("Automatic Orders settings: $SETTINGS")
         setLogLevel(SETTINGS.LOG_LEVEL)
+        val blacklistArray = settings.getMergedSpreadsheetDataForMod("hullid", BLACKLIST_FILE, "automatic-orders")
+        for (i in 0 until blacklistArray.length()) {
+            val id = blacklistArray.getJSONObject(i).getString("hullid")
+            LOGGER.debug("Blacklisting $id")
+            BLACKLIST.add(id)
+        }
     }
 
     override fun pickShipAI(member: FleetMemberAPI?, ship: ShipAPI): PluginPick<ShipAIPlugin>? {
