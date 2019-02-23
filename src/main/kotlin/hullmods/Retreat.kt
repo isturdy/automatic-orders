@@ -17,7 +17,7 @@ class RetreatNoMissiles : BaseHullMod() {
 
 abstract class BaseRetreatThreshold(val id: String) : BaseHullMod() {
     companion object {
-        val IDS = setOf(RetreatMalfunction().id, RetreatCritical().id)
+        val IDS = setOf(RetreatMalfunction().id, RetreatCritical().id, NoCrRetreat().id, NoRetreat().id)
     }
 
     override fun isApplicableToShip(ship: ShipAPI): Boolean {
