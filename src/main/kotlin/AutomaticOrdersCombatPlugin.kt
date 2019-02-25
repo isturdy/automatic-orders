@@ -167,8 +167,8 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
         var hasMissiles = false
         for (weapon in ship.allWeapons) {
             if (weapon.type == WeaponAPI.WeaponType.MISSILE) {
-                val outOfAmmo = (weapon.usesAmmo() && weapon.ammoPerSecond == 0.0f && weapon.ammo == 0)
-                if (!outOfAmmo && !weapon.isPermanentlyDisabled) return false
+                val canFire = if (weapon.usesAmmo()) weapon.ammo != 0 else weapon.cooldownRemaining == 0.0f
+                if (canFire && !weapon.isPermanentlyDisabled) return false
                 hasMissiles = true
             }
         }
