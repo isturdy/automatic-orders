@@ -160,7 +160,7 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
     }
 
     private fun outOfMissiles(ship: ShipAPI): Boolean {
-        if (ship.system.id == "forgevats" && !ship.system.isOutOfAmmo) {
+        if (ship.system.id in AutomaticOrders.MISSILE_REGEN_SYSTEMS && !ship.system.isOutOfAmmo) {
             return true
         }
 
