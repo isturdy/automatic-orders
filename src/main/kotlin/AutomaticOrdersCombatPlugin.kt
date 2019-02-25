@@ -63,7 +63,7 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
             if (member.hullId in AutomaticOrders.BLACKLIST) continue
 
             val ship = fleetManager.getShipFor(member)
-            if (!ship.isAlive) continue
+            if (!ship.isAlive || ship.isStationModule) continue
 
             val hullMods = ship.variant.hullMods
 
