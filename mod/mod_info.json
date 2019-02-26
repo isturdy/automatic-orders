@@ -3,7 +3,7 @@
     "name": "Automatic Orders",
     "author": "Blothorn",
     "utility": "false",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "Automates some fleet orders. Configure with the Automatic Orders hullmod group and automatic_orders_settings.json in the mod folder.",
     "gameVersion": "0.9a",
     "jars":["automaticorders.jar"],
