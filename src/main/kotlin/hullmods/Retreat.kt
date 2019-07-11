@@ -32,8 +32,8 @@ abstract class BaseRetreatThreshold(val id: String) : BaseHullMod() {
     }
 }
 
-class TenPPT : BaseRetreatThreshold("automatic_orders_ten_ppt_retreat")
-class ZeroPPT : BaseRetreatThreshold("automatic_orders_zero_ppt_retreat")
+class TenPPT : BaseRetreatThreshold("automatic_orders_retreat_ten_ppt")
+class ZeroPPT : BaseRetreatThreshold("automatic_orders_retreat_zero_ppt")
 class RetreatMalfunction : BaseRetreatThreshold("automatic_orders_retreat_malfunction")
 class RetreatCritical : BaseRetreatThreshold("automatic_orders_retreat_critical")
 class NoCrRetreat : BaseRetreatThreshold("automatic_orders_no_cr_retreat")
