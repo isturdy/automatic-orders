@@ -17,7 +17,7 @@ class RetreatNoMissiles : BaseHullMod() {
 
 abstract class BaseRetreatThreshold(val id: String) : BaseHullMod() {
     companion object {
-        val IDS = setOf(TenPPT().id, ZeroPPT().id, RetreatMalfunction().id, RetreatCritical().id, NoCrRetreat().id, NoRetreat().id)
+        val IDS = setOf(RetreatTenPPT().id, RetreatZeroPPT().id, RetreatMalfunction().id, RetreatCritical().id, NoCrRetreat().id, NoRetreat().id)
     }
 
     override fun isApplicableToShip(ship: ShipAPI): Boolean {
@@ -32,8 +32,8 @@ abstract class BaseRetreatThreshold(val id: String) : BaseHullMod() {
     }
 }
 
-class TenPPT : BaseRetreatThreshold("automatic_orders_retreat_ten_ppt")
-class ZeroPPT : BaseRetreatThreshold("automatic_orders_retreat_zero_ppt")
+class RetreatTenPPT : BaseRetreatThreshold("automatic_orders_retreat_ten_ppt")
+class RetreatZeroPPT : BaseRetreatThreshold("automatic_orders_retreat_zero_ppt")
 class RetreatMalfunction : BaseRetreatThreshold("automatic_orders_retreat_malfunction")
 class RetreatCritical : BaseRetreatThreshold("automatic_orders_retreat_critical")
 class NoCrRetreat : BaseRetreatThreshold("automatic_orders_no_cr_retreat")
