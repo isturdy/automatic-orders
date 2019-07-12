@@ -85,6 +85,8 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
             }
 
             val crRetreatThreshold = when {
+                TenPPT().id in hullMods -> CrRetreatBehavior.TEN_PERCENT_PPT
+                ZeroPPT().id in hullmods -> CrRetreatBehavior.ZERO_PPT
                 RetreatMalfunction().id in hullMods -> CrRetreatBehavior.MALFUNCTION
                 RetreatCritical().id in hullMods -> CrRetreatBehavior.CRITICAL_MALFUNCTION
                 NoCrRetreat().id in hullMods || NoRetreat().id in hullMods -> CrRetreatBehavior.NONE
