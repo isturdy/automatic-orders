@@ -90,7 +90,7 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
                 RetreatMalfunction().id in hullMods -> CrRetreatBehavior.MALFUNCTION
                 RetreatCritical().id in hullMods -> CrRetreatBehavior.CRITICAL_MALFUNCTION
                 NoCrRetreat().id in hullMods || NoRetreat().id in hullMods -> CrRetreatBehavior.NONE
-                else -> settings.DEFAULT_CR_RETREAT_THRESHOLD
+                else -> settings.DEFAULT_CR_RETREAT_THRESHOLD.get(ship.hullSize)
             }
 
             if (crRetreatThreshold != CrRetreatBehavior.NONE) {
@@ -109,9 +109,9 @@ class AutomaticOrdersCombatPlugin : BaseEveryFrameCombatPlugin() {
                 }
             }
 
-            if (settings.DEFAULT_DAMAGE_RETREAT_THRESHOLD > 0 && NoRetreat().id !in hullMods) {
-                if (ship.hullLevel < settings.DEFAULT_DAMAGE_RETREAT_THRESHOLD &&
-                    ship.hullLevel < ship.hullLevelAtDeployment
+            val damageSetting = settings.DEFAULT_DAMAGE_RETREAT_THRESHOLD.get(ship.hullSize)
+            if (damageSetting > 0 && NoRetreat().id !in hullMods) {
+                if (ship.hullLevel < damageSetting && ship.hullLevel < ship.hullLevelAtDeployment
                 ) {
                     orderRetreat(ship, RetreatReason.DAMAGE, DAMAGE_COLOR, directRetreat)
                 }

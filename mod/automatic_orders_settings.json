@@ -1,4 +1,8 @@
 {
+  # Both default_cr_retreat_threshold and default_damage_retreat_threshold can take either a single value which applies
+  # to all ships or a map from hullsizes to values. Hullsize maps must have values for FRIGATE, DESTROYER, CRUISER, and
+  # CAPITAL_SHIP
+
   # When ships should retreat by default. Valid options are:
   # - 'TEN_PERCENT_PPT': with 10% peak performance time remaining.
   # - 'ZERO_PPT': when peak performance time expires.
@@ -8,7 +12,12 @@
   "default_cr_retreat_threshold": "TEN_PERCENT_PPT",
 
   # The proportion of hull at which to retreat--should be in [0-1]. (0 disables the behavior.)
-  "default_damage_retreat_threshold": 0.5,
+  "default_damage_retreat_threshold": {
+    "FRIGATE": 0.8,
+    "DESTROYER": 0.6,
+    "CRUISER": 0.4,
+    "CAPITAL_SHIP": 0.3,
+  },
 
   # Whether a Personality Override hullmod overrides the personality of an assigned officer.
   "hullmod_overrides_officer_personality": false,
